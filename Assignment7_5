@@ -1,0 +1,42 @@
+#Laboratory Exercise 7, Home Assignment 5
+.data
+A: .word 45, -6, 2, 75, 6, -62, 45, 59
+.text
+main:
+	la	$a0,A		#$a0 = address(A[0])
+	add	$v0,$zero,$a0	#add v0 = s0
+	add	$v1,$zero,$a0	#add v1 = s0
+	add	$s2,$zero,1	#add i = 1
+	add	$s3,$zero,1	#add step = 0
+	jal	max             #call max procedure
+	nop
+	jal	min		#call min procedure
+	nop     	
+	jr	$ra
+endmain:
+max:  
+	loop1:	add 	$t1,$t1,$s0	#t1 store address of A[i]
+		lw	$t0,0($t1)	#load value of A[i] in $t0
+ 		sub	$t0,$s1,$v0     #compute (s1)-(v0)
+		bltz	$t0,loop1       #if (s1)-(v0)<0 then goto loop1
+		nop
+		add	$v0,$s1,$zero   #else (s1) is largest overall
+		add	$s2,$s2,$s3	#i = i + step
+	add	$v0,$zero,$s1
+	j	main            #return to calling program
+endmax:
+min:  
+	loop2:	add 	$t2,$t2,$s0	#t2 store address of A[i]
+		lw	$t0,0($t2)	#load value of A[i] in $t0
+ 		sub	$t0,$s1,$v1     #compute (s1)-(v1)
+		bgtz	$t0,loop2        #if (s1)-(v1)>0 then goto loop2
+		nop
+		add	$v1,$s1,$zero   #else (s1) is minest overall
+		add	$s2,$s2,$s3	#i = i + step
+	add	$v1,$zero,$s1
+	j	main            #return to calling program
+endmin:
+
+
+
+

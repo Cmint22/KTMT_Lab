@@ -1,0 +1,96 @@
+# array.asm
+# nhap va xuat mang mot chieu cac so nguyen va xuat ra chu so it xuat hien nhat
+# cac thanh ghi su dung:
+#  $t0:  so luong phan tu n
+#  $t1:  chi so mang
+#  $a1:  dia chi co so (base address) cua mang[/color]
+#  $v0:  chu so it xuat hien nhat trong mang
+
+.data
+input1:  .asciiz  "Nhap n: "
+input2:  .asciiz  "[ "
+input3:  .asciiz  " ] = "
+output1: .asciiz "\nChuoi vua nhap: "
+output2: .asciiz  "\nChu so it xuat hien nhat trong mang: "
+array:   .word  0:100   # int array[100]
+
+.text
+main:
+	la     $a0, input1	#khoi tao thanh ghi voi dia chi cua Nhap n
+  	addi   $v0, $zero, 4	#nhap n
+  	syscall
+  	addi   $v0, $zero, 5
+  	syscall
+  	addi   $t0, $v0, 0	
+  	addi   $t1, $zero, 0	#khoi tao i = 0
+  	la     $a1, array	#khoi tao mang
+NhapMang:
+# kiem tra so lan lap
+  	subu  $t2, $t1, $t0	#t2 = i - n
+  	bgez  $t2, KetThucNhap	#di den KetThucNhap n?u t2 >=0
+
+  	la    $a0, input2	#khoi tao thanh ghi voi dia chi cua [
+  	addi  $v0, $zero, 4
+  	syscall
+  	addi  $a0, $t1, 0	#
+  	addi  $v0, $zero, 1
+  	syscall
+  	la    $a0, input3	#khoi tao thanh ghi voi dia chi cua ]
+  	addi  $v0, $zero, 4
+  	syscall
+  	
+  	addi  $v0, $zero, 5	#Nhap so nguyen
+  	syscall
+  	sw    $v0, ($a1)	#luu so nguyen vao array[i]
+
+  	addi  $t1, $t1, 1	#i = i + 1
+  	addi  $a1, $a1, 4	
+
+  	j    NhapMang		#nhay den NhapMang
+
+KetThucNhap:
+  	la    $a0, output1	#khoi tao gia tri thanh ghi voi dia chi cua Chuoi vua nhap
+  	addi  $v0, $zero, 4
+  	syscall
+
+# khoi tao
+  	la    $a1, array	#khoi tao gia tri thanh ghi voi dia chi cua mang
+  	addi  $t1, $zero, 0	#khoi tao gia tr? i = 0
+
+XuatMang:
+  	subu  $t2, $t1, $t0	#t2 = i - n
+  	bgez  $t2, KetThuc	#di den KetThuc n?u t2 >=0
+
+  	lw    $a0, ($a1)	#xuat phan tu array[i]
+  	addi  $v0, $zero, 1
+  	syscall
+
+ 	addi  $a0, $zero, 0x20	#xuat khoang trang
+  	addi  $v0, $zero, 11
+  	syscall
+
+  	addi  $t1, $t1, 1	#i = i + 1
+  	addi  $a1, $a1, 4
+
+  	j    XuatMang		#nhay den XuatMang
+
+KetThuc:
+  	addi  $v0, $zero, 10
+  	syscall
+
+push:
+	addi  $t1, $zero, 0	# i = 0
+	addi  $sp,$sp,-20	#dieu chinh con tro ngan xep
+Loop:
+	beq   $t1, $t0, dunglap	#nhay den dunglap neu i = n
+	sw    $v0,($sp)		#day v0 vào ngan xep
+	addi  $t1, $t1, 1	#i = i + 1
+  	addi  $a1, $sp, 4	#
+  	j     Loop		#quay lai Loop
+dunglap:
+	jr    $ra		#tro lai chuong trinh
+NhapMang_end:
+
+
+  	
+  

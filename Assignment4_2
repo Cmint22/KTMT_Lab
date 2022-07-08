@@ -1,0 +1,10 @@
+#Laboratory Exercise 4, Assignment 2
+.text 
+       li    $s0, 0x123456789       # s0 = 123456789
+       andi  $t0, $s0, 0xffffff00   # Trích xu?t byte quan tr?ng nh?t c?a s0
+       li    $s0, 0x123456789 
+       xor   $s0, 0x000000ff        # Xóa bit ít quan tr?ng nh?t c?a s0
+       li    $s0, 0x123456789 
+       ori   $t1, $s0, 0x000000ff   # Gán t? bit 7 ??n bit 0 ít quan tr?ng nh?t 
+       li    $s0, 0x123456789
+       move  $s0, $0                # Xóa giá tr? c?a $s0

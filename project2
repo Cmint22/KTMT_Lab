@@ -1,0 +1,162 @@
+.data
+    chuso: .space 40
+    output: .space 40
+    inputLabel: .asciiz "Enter the amount of integers in the array:\n"
+    enter_str: .asciiz "Enter array:\n"
+    result: .asciiz "The least frequent digit: "
+
+.text
+	#print input label
+	li $v0, 4
+	la $a0, inputLabel
+	syscall
+	#read amount of integers to be inputed.
+	li $v0, 5
+	syscall
+	addi $t0, $v0, 0 	# $t0 = so phan tu = n
+	add $s0,$t0,0		# set $s0 to n for future use 
+	sll $t1,$t0,2		# $t1 = $t0*4 = n*4
+	sub $sp,$sp,$t1		# adjust the stack pointer
+	
+	#nhap vao cac phan tu
+	li $v0,4
+	la $a0,enter_str
+	syscall
+	jal input
+	
+	add $t0,$s0,0		# set $t0=n again
+	add $t9,$ra,16
+	sub $sp,$sp,$t1		# adjust the stack pointer
+	jal split_count
+	
+	li $t0,10	# set $t0=10 again
+	li $t6,100	# $t6 future use as minimum value
+	la $s1,chuso	# $s1=address of the counting array
+	la $s2,output	# $s2=address of output array
+	
+	li $v0,4
+	la $a0,result
+	syscall
+	
+	jal min
+	
+	li $v0,10
+	syscall
+	
+#--------------------------------------------------------------------
+# function input
+# input each element of array and store its absolute value to stack
+#--------------------------------------------------------------------
+input:
+	beqz $t0,exit_input	# when n==0, exit input
+	li $v0,5		#if n!=0, get input
+	syscall
+	
+	abs $v0,$v0
+	sw $v0,($sp)		#push each to stack
+	add $sp,$sp,4		#a[n]=sp-n*4
+	
+	add $t0,$t0,-1
+	j input
+	
+exit_input:
+	jr $ra
+
+#--------------------------------------------------------------------
+# function split_count
+# split each element into the tens and ones
+# count each time a digit appears and add it to array 'chuso'
+#--------------------------------------------------------------------	
+split_count:
+	lw $a1,($sp)		# $a1=temp = value of current sp
+	
+	add $sp,$sp,4
+	add $t0,$t0,-1			# i=i-1
+	blt $t0,0,exit_split_count	# when i=0, exit count
+	
+	split:	
+		div $a1,$a1,10		# divide $a1 by 10 to get the tens in $lo, and ones in $hi	
+		mfhi $a2		# $a2 = so du
+	
+		# if $a1=hangchuc=0, aka there is only the unit remains
+		add $s3,$a2,0		# set s3 = a2
+		beq $a1,0,addto_chuso_end
+		#else
+		add $s3,$a2,0		# $s3 = ones
+		jal addto_chuso
+		j split
+	
+exit_split_count:
+	add $ra,$t9,0
+	jr $ra
+
+addto_chuso:
+	la $s1,chuso		# $s1=address of the counting array
+	sll $s3,$s3,2		# $s3=$s3*4
+	add $s3,$s3,$s1		# $s3 = $s3+4*a(i) = address of the index that we are going to add 1 count
+	lw $s4,($s3)		# load current value in that address to $s4
+	addi $s4,$s4,1		# add 1 to increase the count
+	sw $s4,($s3)		# store back the increased value
+	
+	jr $ra
+
+addto_chuso_end:
+	la $s1,chuso		# $s1=address of the counting array
+	sll $s3,$s3,2		# $s3=$s3*4
+	add $s3,$s3,$s1		# $s3 = a(0)+4*i = address of the index that we are going to add 1 count
+	lw $s4,($s3)		# load current value in that address to $s4
+	add $s4,$s4,1		# add 1 to increase the count
+	sw $s4,($s3)		# store back the increased value
+	
+	j split_count
+	
+#--------------------------------------------------------------------
+# function min
+# compare all elements in 'chuso' to find the least ones
+# after finish comparing, print the number that has the least appearance
+# set $t6 = min
+#--------------------------------------------------------------------	
+
+min:
+	add $t0,$t0,-1		# i=i-1
+	blt $t0,0,print_min	# $t0=i, if i<0, then print
+	
+	lw $s3,($s1)		# $s3 = temp = value of chuso(i)
+	add $s1,$s1,4		# increase to traverse through whole array
+	
+	beq $s3,0,min		# if chuso(i)=0, aka didnt appear => skip
+	# else
+	sub $t1,$t6,$s3 	# compare t6 and temp, $t1= $t6 - $s3
+	bltz $t1,min		# if t6-s3 <0 <=> $t6 < $s3 = temp
+	nop			# do nothing
+				# if not, aka temp < $t6
+ 	add $t6,$s3,0	 	# set min = temp
+ 	
+ 	j min
+
+print_min:
+	la $s1,chuso
+	loop:
+	add $t0,$t0,1		# i=i+1
+	beq $t0,10,exit		# $t0=10 => exit
+
+	lw $s3,($s1)		# $s3 = temp = value of chuso(i)
+	add $s1,$s1,4		# increase to traverse through whole array
+	
+	bne $s3,$t6,loop	# if chuso(i) != min, then skip
+	# else			
+	add $t5,$t0,0		# t5=t0=i
+	sw $t5,($s2)		# write down i value in output array	
+	add $s2,$s2,4
+	
+	li $v0, 1      		# print out i to screen
+    	add $a0,$t5,0
+    	syscall
+	
+	li $a0, 32		# print the space ' '
+    	li $v0, 11  
+    	syscall
+    	
+	j loop
+exit:
+	jr $ra	

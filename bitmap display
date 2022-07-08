@@ -1,0 +1,33 @@
+.eqv MONITOR_SCREEN 0x10010000   #Dia chi bat dau cua bo nho man hinh
+.eqv RED1           0x00FF0000   #Cac gia tri mau thuong su dung
+.eqv RED2           0x00B00000
+.eqv RED3           0x00600000
+
+.data
+A:    	.word 36,40,48,52,64,76,88,96,120,132,148,168,176,204
+B:     	.word 68,72,80,84,100,108,116,136,144,172
+C:	.word 104,140,112
+Aend:   .word
+Bend:   .word
+Cend:   .word
+
+.text
+	la $t0, A		    #t0 = dia chi A[0]
+	la $t1, Aend
+	addi $t1,$t1,-4  	    #$a1 = Address(A[n-1])
+	li $k0, MONITOR_SCREEN      #Nap dia chi bat dau cua man hinh
+	j  loop1
+	nop
+	syscall
+	
+loop1:	
+	beq $t0, $t1, reset
+	li $t0, RED1
+	sw  $t0, 0($k0)
+	nop
+	j  loop1
+
+reset: 
+	jr $ra
+
+	

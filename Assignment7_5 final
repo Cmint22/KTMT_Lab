@@ -1,0 +1,54 @@
+#Laboratory Execise 7, Home Assignment 3
+.text
+	li	$s0,87
+	li	$s1,6
+	li	$s2,-35
+	li	$s3,12
+	li	$s4,-26
+	li	$s5,0
+	li	$s6,41
+	li	$s7,-41
+	addi	$sp,$sp,-32	#adjust the stack pointer
+	sw	$s7,28($sp)
+	sw	$s6,24($sp)
+	sw	$s5,20($sp)
+	sw	$s4,16($sp)
+	sw	$s3,12($sp)
+	sw	$s2,8($sp)
+	sw	$s1,4($sp)
+	sw	$s0,0($sp)
+	add	$t4,$s0,0	#max = v0(= s0)
+	li	$t0,0
+	jal	max
+	addi	$sp,$sp,-32
+	add	$t6,$s0,0	#min = v1(= s0)
+	li	$t0,0
+	jal	min
+	li	$v0,10		#terminate
+	syscall
+max:
+	addi	$t0,$t0,1	#i = i + 4
+	beq	$t0,8,endmax
+	add	$sp,$sp,4
+	lw	$a1,($sp)	#a0 = s(0+1)
+	sub	$t1,$a1,$t4	#t1 = a1 - v0
+	bltz	$t1,max
+	add	$t4,$zero,$a1
+	add	$t5,$t0,0
+	j	max
+endmax:
+	jr	$ra
+	addi	$sp,$sp,32
+min:
+	addi	$t0,$t0,1	#i = i + 4
+	beq	$t0,8,endmin
+	add	$sp,$sp,4
+	lw	$a1,($sp)	#a0 = s(0+1)
+	sub	$t1,$a1,$t6	#t1 = a1 - v0
+	bgtz	$t1,min
+	add	$t6,$zero,$a1
+	add	$t7,$t0,-1
+	j	min
+endmin:
+	jr	$ra
+	addi	$sp,$sp,32

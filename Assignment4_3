@@ -1,0 +1,14 @@
+#Laboratoty Exercise 4, Assignment 3
+.text
+      li     $s0, 2           # s0 = 2
+      bltz   $s0, else        # s0 < 0
+      bne    $t0, $zero, else # branch to else if s0 < 0
+      add    $t1, $zero, $s0  # t1 = 0 + s0
+else:
+      add    $t2, $s0, $s0    # t2 + s0 + s0
+      sub    $t3, $s0, $t2    # t3 = so - t2 
+      add    $t1, $zero, $t3  # t3 = 0 + t3
+endif:    
+      
+      
+      

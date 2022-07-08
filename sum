@@ -1,0 +1,75 @@
+.data
+    tb1: .asciiz "Input N = "
+    tb2: .asciiz "Output: "
+    tb3: .asciiz "Input elements: "
+    tb4: .asciiz "Nhap lai: "
+    tb5: .asciiz "\nTong la: "
+    space: .asciiz "  "
+    .text
+    main:
+    la $a0, tb1 
+    li $v0, 4
+    syscall
+    li $t0,0
+    j input_N
+
+    nhaplai:
+    la $a0,tb4
+    li $v0,4
+    syscall
+
+    input_N:
+    li $v0, 5 
+    syscall
+    move $s0, $v0 
+    move $s1, $s0 
+
+    blt $s1, 1, nhaplai
+    la $a0,tb3
+    li $v0,4
+    syscall
+
+    loop1:
+    beqz $s1, xuat_tb
+    li $v0, 5 
+    syscall
+    move $a0, $v0
+    jal pushback
+    addi $s1, $s1, -1
+    j loop1
+
+    xuat_tb:
+    la $a0, tb2 
+    li $v0, 4 
+    syscall
+    move $s1, $s0 
+
+    out:
+    beqz $s1, end_program
+    move $a0, $v0
+    li $v0, 1 
+    syscall
+    add $t0,$t0,$a0
+    la $a0, space 
+    li $v0, 4
+    syscall
+    addi $s1, $s1, -1
+    j out
+    jr $ra
+
+    xuat_tb5:
+    la $a0, tb5 
+    li $v0, 4 
+    syscall
+
+    pushback:
+    addi $sp, $sp, -4 
+    sw $a0, 0($sp)
+    jr $ra
+
+    popback:
+    lw $v0, 0($sp) 
+    addi $sp, $sp, 4
+    jr $ra
+
+    end_program:
